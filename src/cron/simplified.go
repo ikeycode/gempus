@@ -18,13 +18,30 @@ package cron
 
 import (
 	"fmt"
+	"time"
 )
+
+// EventTiming allows us to determine if and when an event runs
+type EventTiming struct {
+	Hour   int // -1 Indicates running every hour
+	Minute int // -1 Indicates running every minute
+	// Day uint8
+	// Month uint8
+}
+
+// ShouldRun will determine if we actually need to be run.
+// 'now' should be a UTC current-time value
+func (t EventTiming) ShouldRun(now *time.Time) bool {
+	return false
+}
 
 // SimpleEvent extends the Event struct to add custom values
 type SimpleEvent struct {
 	tid     int64
 	id      string
 	command string // Really this could become a userdata function.
+
+	timing EventTiming // Maintain timing information
 }
 
 // setTID will be called internally by the managing Tab once it can
@@ -65,5 +82,9 @@ func NewEventSimpleFormat(line string) (Event, error) {
 func NewEventSimpleFormatValues(hour, minute int, command string) Event {
 	return &SimpleEvent{
 		id: fmt.Sprintf("run %v @ M(%v) H(%v)", command, hour, minute),
+		timing: EventTiming{
+			Hour:   hour,
+			Minute: minute,
+		},
 	}
 }
