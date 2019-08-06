@@ -105,12 +105,10 @@ func (t *Tab) Run() {
 	t.mut.RLock()
 
 	for _, event := range t.events {
-		fmt.Printf("Test event: %v %v", event.ID(), event.Timing().tm)
 		if event.Timing().ShouldRun(now) {
-			fmt.Printf(": should run\n")
-		} else {
-			fmt.Printf(": should NOT run\n")
+			event.Execute()
+			// t.expireEvent(event)
+			break
 		}
-		event.Execute()
 	}
 }

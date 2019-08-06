@@ -19,34 +19,32 @@ package main
 import (
 	"cron"
 	"fmt"
-	"runtime"
-	"sync"
+	"time"
 )
 
+// pollJobs is a dumb function to pull jobs in order.
+func pollJobs(c *cron.Tab) {
+	fmt.Println("Checking jobs.")
+	c.Run()
+}
+
 func main() {
-	fmt.Println("Not yet implemented")
-
-	// Dummy code
-	wg := &sync.WaitGroup{}
-	ncpu := runtime.NumCPU()
-
 	tab := cron.NewTab()
-	wg.Add(ncpu)
 
-	for i := 0; i < ncpu; i++ {
-		// idx := 30 + i
-		go func() {
-			defer wg.Done()
-			// tab.PushEvent(cron.NewEventSimpleFormatValues(12, idx, "/bin/script"))
-		}()
-	}
+	// We don't actually use it.
+	q := make(chan bool)
 
 	tab.PushEvent(cron.NewEventSimpleFormatValues(1, 30, "/bin/run_me_daily"))
 	tab.PushEvent(cron.NewEventSimpleFormatValues(-1, 45, "/bin/run_me_hourly"))
 	tab.PushEvent(cron.NewEventSimpleFormatValues(-1, -1, "/bin/run_me_every_minute"))
 	tab.PushEvent(cron.NewEventSimpleFormatValues(19, -1, "/bin/run_me_sixty_times"))
 
-	wg.Wait()
-
-	tab.Run()
+	for {
+		select {
+		case <-time.After(1 * time.Second):
+			pollJobs(tab)
+		case <-q:
+			break
+		}
+	}
 }
