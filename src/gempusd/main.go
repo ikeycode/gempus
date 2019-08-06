@@ -43,7 +43,7 @@ func main() {
 
 	tab.PushEvent(cron.NewEventSimpleFormatValues(-1, -1, "/bin/bash"))
 	tab.PushEvent(cron.NewEventSimpleFormatValues(11, -1, "/bin/bash"))
-	tab.PushEvent(cron.NewEventSimpleFormatValues(12, 36, "/bin/bash"))
+	tab.PushEvent(cron.NewEventSimpleFormatValues(-1, 22, "/bin/bash"))
 
 	wg.Wait()
 

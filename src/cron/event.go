@@ -60,7 +60,9 @@ func (t *EventTiming) NextTimestamp(now time.Time) {
 
 	if t.Hour < 0 {
 		// Every hour
-		tm = tm.Add(time.Hour)
+		if t.Minute < tm.Minute() {
+			tm = tm.Add(time.Hour)
+		}
 	} else {
 		// Specified hour
 		hour := t.Hour - tm.Hour()
