@@ -17,8 +17,8 @@
 package main
 
 import (
+	_ "cron"
 	"fmt"
-	_ "gempus"
 )
 
 func main() {

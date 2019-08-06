@@ -20,27 +20,27 @@ import (
 	"fmt"
 )
 
-// A Crontab is used internally to store cron events, which are then
+// A Tab is used internally to store cron events, which are then
 // available for query and scheduling.
 //
-// As a design decision, the Crontab is not responsible for the parsing
+// As a design decision, the Tab is not responsible for the parsing
 // of crontab files, as it would force the scheduler component to become
 // I/O bound. Instead it becomes the responsibility of the calling program
 // to feed parsed events.
-type Crontab struct {
+type Tab struct {
 	events []*Event
 }
 
-// NewCrontab will construct a new Crontab type and prepare it for
+// NewTab will construct a new Tab type and prepare it for
 // use within the calling process.
-func NewCrontab() *Crontab {
-	return &Crontab{
+func NewTab() *Tab {
+	return &Tab{
 		events: nil,
 	}
 }
 
 // PushEvent will attempt to insert the event into the crontab for
 // future scheduling
-func (c *Crontab) PushEvent(e *Event) {
+func (t *Tab) PushEvent(e *Event) {
 	fmt.Println("Not yet implemented")
 }
