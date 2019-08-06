@@ -40,13 +40,15 @@ type EventTiming struct {
 	// Month uint8
 }
 
+type EventQueue []Event
+
 // ShouldRun will determine if we actually need to be run.
 // 'now' should be a UTC current-time value
 func (t *EventTiming) ShouldRun(now time.Time) bool {
 	return t.tm.Before(now)
 }
 
-// NextTimestamp sets the UNIX timestamp for the next time the
+// NextTimestamp sets the timestamp for the next time the
 // event should run.
 func (t *EventTiming) NextTimestamp(now time.Time) {
 	// Run every hour
@@ -82,13 +84,28 @@ func (t *EventTiming) NextTimestamp(now time.Time) {
 	// Now check if this time is back in time..
 	if tm.Before(now) {
 		tm = tm.Add(time.Hour * time.Duration(24))
-		if t.Minute < 0 {
-			// Reset the minutes for time travelling
-			tm = tm.Add(time.Duration(60-tm.Minute()) * time.Minute)
-		}
+	}
+
+	// Reset the minutes to start of the hour
+	if now.Before(tm) && t.Minute < 0 {
+		tm = tm.Add(-time.Duration(tm.Minute()) * time.Minute)
 	}
 
 compl:
 	t.tm = tm
 	fmt.Println(t.tm)
+}
+
+func (eq EventQueue) Less(i, j int) bool {
+	a := eq[i].Timing()
+	b := eq[j].Timing()
+	return a.tm.Before(b.tm)
+}
+
+func (eq EventQueue) Len() int {
+	return len(eq)
+}
+
+func (eq EventQueue) Swap(i, j int) {
+	eq[i], eq[j] = eq[j], eq[i]
 }

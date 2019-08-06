@@ -41,9 +41,10 @@ func main() {
 		}()
 	}
 
-	tab.PushEvent(cron.NewEventSimpleFormatValues(-1, -1, "/bin/bash"))
-	tab.PushEvent(cron.NewEventSimpleFormatValues(11, -1, "/bin/bash"))
-	tab.PushEvent(cron.NewEventSimpleFormatValues(-1, 22, "/bin/bash"))
+	tab.PushEvent(cron.NewEventSimpleFormatValues(1, 30, "/bin/run_me_daily"))
+	tab.PushEvent(cron.NewEventSimpleFormatValues(-1, 45, "/bin/run_me_hourly"))
+	tab.PushEvent(cron.NewEventSimpleFormatValues(-1, -1, "/bin/run_me_every_minute"))
+	tab.PushEvent(cron.NewEventSimpleFormatValues(19, -1, "/bin/run_me_sixty_times"))
 
 	wg.Wait()
 

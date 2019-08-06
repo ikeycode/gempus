@@ -18,6 +18,7 @@ package cron
 
 import (
 	"fmt"
+	"sort"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -83,9 +84,22 @@ func (t *Tab) nextTID() int64 {
 	return atomic.AddInt64(&t.tid, 1)
 }
 
+// sortEvents is a bit of a kludge to sort the queue of events.
+// Realistically we could've used a heap-implementation with channels
+// to ensure sorted prioritiy queues.
+func (t *Tab) sortEvents() {
+	defer t.mut.Unlock()
+	t.mut.Lock()
+
+	sort.Sort(EventQueue(t.events))
+}
+
 // Run is a dummy function that pretends to run all the events.
 func (t *Tab) Run() {
 	now := time.Now()
+
+	// Lock and sort events.
+	t.sortEvents()
 
 	defer t.mut.RUnlock()
 	t.mut.RLock()
