@@ -73,7 +73,7 @@ type EventTiming struct {
 type EventQueue []Event
 
 // ShouldRun will determine if we actually need to be run.
-// 'now' should be a UTC current-time value
+// 'now' should be a current-time value
 func (t *EventTiming) ShouldRun(now time.Time) bool {
 	return t.tm.Before(now)
 }
