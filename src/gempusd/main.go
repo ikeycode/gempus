@@ -32,8 +32,8 @@ func main() {
 	// We don't actually use it.
 	q := make(chan bool)
 
-	tab.PushEvent(cron.NewEventSimpleFormatValues(1, 30, "/bin/run_me_daily"))
-	tab.PushEvent(cron.NewEventSimpleFormatValues(-1, 55, "/bin/run_me_hourly"))
+	tab.PushEvent(cron.NewEventSimpleFormatValues(00, 04, "/bin/run_me_daily"))
+	tab.PushEvent(cron.NewEventSimpleFormatValues(-1, 01, "/bin/run_me_hourly"))
 	tab.PushEvent(cron.NewEventSimpleFormatValues(-1, -1, "/bin/run_me_every_minute"))
 	tab.PushEvent(cron.NewEventSimpleFormatValues(19, -1, "/bin/run_me_sixty_times"))
 
