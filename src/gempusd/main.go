@@ -18,13 +18,11 @@ package main
 
 import (
 	"cron"
-	"fmt"
 	"time"
 )
 
 // pollJobs is a dumb function to pull jobs in order.
 func pollJobs(c *cron.Tab) {
-	fmt.Println("Checking jobs.")
 	c.Run()
 }
 
@@ -35,13 +33,13 @@ func main() {
 	q := make(chan bool)
 
 	tab.PushEvent(cron.NewEventSimpleFormatValues(1, 30, "/bin/run_me_daily"))
-	tab.PushEvent(cron.NewEventSimpleFormatValues(-1, 45, "/bin/run_me_hourly"))
+	tab.PushEvent(cron.NewEventSimpleFormatValues(-1, 55, "/bin/run_me_hourly"))
 	tab.PushEvent(cron.NewEventSimpleFormatValues(-1, -1, "/bin/run_me_every_minute"))
 	tab.PushEvent(cron.NewEventSimpleFormatValues(19, -1, "/bin/run_me_sixty_times"))
 
 	for {
 		select {
-		case <-time.After(1 * time.Second):
+		case <-time.After(5 * time.Second):
 			pollJobs(tab)
 		case <-q:
 			break

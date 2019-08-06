@@ -21,6 +21,17 @@ import (
 	"time"
 )
 
+type EventTimeFlag uint
+
+const (
+	EventPerMinute EventTimeFlag = 1 << iota
+	EventPerHour   EventTimeFlag = 1 << iota
+	EventPerWeek   EventTimeFlag = 1 << iota
+	EventPerMonth  EventTimeFlag = 1 << iota
+	EventPerYear   EventTimeFlag = 1 << iota
+	EventRepeats   EventTimeFlag = 1 << iota
+)
+
 // Event provides a simplistic interface to implement events
 type Event interface {
 	ID() string            // ID should return a display ID
@@ -36,8 +47,9 @@ type EventTiming struct {
 	Hour   int // -1 Indicates running every hour
 	Minute int // -1 Indicates running every minute
 
-	repeats bool // Whether the timing is repetitive or one-shot
-	tm      time.Time
+	flags EventTimeFlag // Event timing flags
+
+	tm time.Time
 
 	// Day uint8
 	// Month uint8
@@ -56,24 +68,49 @@ func (t *EventTiming) ShouldRun(now time.Time) bool {
 
 // Repeats will return true if the event repeats
 func (t *EventTiming) Repeats() bool {
-	return t.repeats
+	return t.HasFlag(EventRepeats)
+}
+
+func NewEventTiming(hour, minute int) *EventTiming {
+	timing := &EventTiming{
+		Hour:   hour,
+		Minute: minute,
+		flags:  0,
+	}
+
+	// Repeats hourly
+	if hour < 0 {
+		timing.flags |= EventPerHour | EventRepeats
+	}
+
+	// Repeats every minute
+	if minute < 0 {
+		timing.flags |= EventPerMinute | EventRepeats
+	}
+
+	return timing
+}
+
+// HasFlag returns true if the flag is set
+func (t *EventTiming) HasFlag(mask EventTimeFlag) bool {
+	return t.flags&mask == mask
 }
 
 // NextTimestamp sets the timestamp for the next time the
 // event should run.
-func (t *EventTiming) NextTimestamp(now time.Time) {
+func (t *EventTiming) NextTimestamp(now time.Time, ran bool) {
 	// Run every hour
 	tm := now
 
 	// Run every minute of every hour
-	if t.Hour < 0 && t.Minute < 0 {
+	if t.HasFlag(EventPerHour | EventPerMinute | EventRepeats) {
 		tm = tm.Add(time.Minute)
 		goto compl
 	}
 
-	if t.Hour < 0 {
+	if t.HasFlag(EventPerHour) {
 		// Every hour
-		if t.Minute < tm.Minute() {
+		if ran || t.Minute < tm.Minute() {
 			tm = tm.Add(time.Hour)
 		}
 	} else {
@@ -83,7 +120,7 @@ func (t *EventTiming) NextTimestamp(now time.Time) {
 		tm = tm.Add(time.Duration(hour) * time.Hour)
 	}
 
-	if t.Minute < 0 {
+	if t.HasFlag(EventPerMinute) {
 		// Add one minute from now.
 		tm = tm.Add(time.Minute)
 	} else {
@@ -98,7 +135,7 @@ func (t *EventTiming) NextTimestamp(now time.Time) {
 	}
 
 	// Reset the minutes to start of the hour
-	if now.Before(tm) && t.Minute < 0 {
+	if now.Before(tm) && t.HasFlag(EventPerMinute) {
 		tm = tm.Add(-time.Duration(tm.Minute()) * time.Minute)
 	}
 

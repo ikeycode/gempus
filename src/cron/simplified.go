@@ -84,12 +84,8 @@ func NewEventSimpleFormatValues(hour, minute int, command string) Event {
 	event := &SimpleEvent{
 		id:      fmt.Sprintf("run %v @ M(%v) H(%v)", command, minute, hour),
 		command: command,
-		timing: &EventTiming{
-			Hour:    hour,
-			Minute:  minute,
-			repeats: true,
-		},
+		timing:  NewEventTiming(hour, minute),
 	}
-	event.timing.NextTimestamp(time.Now())
+	event.timing.NextTimestamp(time.Now(), false)
 	return event
 }
