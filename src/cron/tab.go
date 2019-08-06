@@ -81,6 +81,17 @@ func (t *Tab) buildQueue(whence *time.Time) EventQueue {
 
 // expireEvent will remove the event from the list of known events
 func (t *Tab) expireEvent(e Event) {
+	// Set the next run-time if appropriate
+	now := time.Now()
+	e.Timing().NextTimestamp(now)
+
+	// If we repeat (basically, always) then don't expire.
+	// This just opens the scope to one-shot events being added
+	// to the scheduler.
+	if e.Timing().Repeats() {
+		return
+	}
+
 	defer t.mut.Unlock()
 	t.mut.Lock()
 
@@ -106,7 +117,10 @@ func (t *Tab) Run() {
 
 	// Run all runnable events
 	for _, event := range queue {
+		// Execute it
 		event.Execute()
+
+		// Expire it if required
 		t.expireEvent(event)
 	}
 }

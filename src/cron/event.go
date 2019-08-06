@@ -36,7 +36,9 @@ type EventTiming struct {
 	Hour   int // -1 Indicates running every hour
 	Minute int // -1 Indicates running every minute
 
-	tm time.Time
+	repeats bool // Whether the timing is repetitive or one-shot
+	tm      time.Time
+
 	// Day uint8
 	// Month uint8
 }
@@ -50,6 +52,11 @@ type EventQueue []Event
 // 'now' should be a UTC current-time value
 func (t *EventTiming) ShouldRun(now time.Time) bool {
 	return t.tm.Before(now)
+}
+
+// Repeats will return true if the event repeats
+func (t *EventTiming) Repeats() bool {
+	return t.repeats
 }
 
 // NextTimestamp sets the timestamp for the next time the
