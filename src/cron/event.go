@@ -21,15 +21,27 @@ import (
 	"time"
 )
 
+// EventTimeFlag provides a strongly typed bitmask for event timing flags
 type EventTimeFlag uint
 
 const (
+	// EventPerMinute will be set if repeating-per-minute is required
 	EventPerMinute EventTimeFlag = 1 << iota
-	EventPerHour   EventTimeFlag = 1 << iota
-	EventPerWeek   EventTimeFlag = 1 << iota
-	EventPerMonth  EventTimeFlag = 1 << iota
-	EventPerYear   EventTimeFlag = 1 << iota
-	EventRepeats   EventTimeFlag = 1 << iota
+
+	// EventPerHour will be set if repeating-per-hour is required
+	EventPerHour EventTimeFlag = 1 << iota
+
+	// EventPerWeek will be set if repeating-per-week is required
+	EventPerWeek EventTimeFlag = 1 << iota
+
+	// EventPerMonth will be set if repeating-per-month is required
+	EventPerMonth EventTimeFlag = 1 << iota
+
+	// EventPerYear will be set if repeating-per-year is required
+	EventPerYear EventTimeFlag = 1 << iota
+
+	// EventRepeats is set whenever a repeating flag is used
+	EventRepeats EventTimeFlag = 1 << iota
 )
 
 // Event provides a simplistic interface to implement events
@@ -71,6 +83,7 @@ func (t *EventTiming) Repeats() bool {
 	return t.HasFlag(EventRepeats)
 }
 
+// NewEventTiming will set up a basic EventTiming object
 func NewEventTiming(hour, minute int) *EventTiming {
 	timing := &EventTiming{
 		Hour:   hour,
