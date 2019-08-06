@@ -40,6 +40,8 @@ type EventTiming struct {
 	// Month uint8
 }
 
+// EventQueue wraps the Event type to provide time-based sorting
+// of cron events
 type EventQueue []Event
 
 // ShouldRun will determine if we actually need to be run.
