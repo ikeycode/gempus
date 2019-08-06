@@ -21,12 +21,23 @@ import (
 	"cron"
 	"fmt"
 	"os"
+	"time"
 )
 
 func main() {
 	fmt.Println("Not yet implemented")
 	// TODO: Something useful.
 	tab := cron.NewTab()
+
+	tm := time.Now()
+	var err error
+
+	if len(os.Args) > 1 {
+		tm, err = time.Parse("15:04", os.Args[1])
+		if err != nil {
+			panic(err)
+		}
+	}
 
 	// Loop stdin
 	sc := bufio.NewScanner(os.Stdin)
@@ -36,6 +47,9 @@ func main() {
 			fmt.Println(err)
 			return
 		}
+
+		// Cheekily force the timestamp change now
+		event.Timing().NextTimestamp(tm, false)
 		tab.PushEvent(event)
 		event.Execute()
 	}
