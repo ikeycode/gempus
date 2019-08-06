@@ -16,6 +16,33 @@
 
 package cron
 
+import (
+	"fmt"
+)
+
+// SimpleEvent extends the Event struct to add custom values
+type SimpleEvent struct {
+	tid     int64
+	id      string
+	command string // Really this could become a userdata function.
+}
+
+// setTID will be called internally by the managing Tab once it can
+// construct a timing ID
+func (e *SimpleEvent) setTID(tid int64) {
+	fmt.Printf("TID now: %v\n", tid)
+	e.tid = tid
+}
+
+// Execute currently does nothing
+func (e *SimpleEvent) Execute() (int, error) {
+	return 255, nil
+}
+
+func (e *SimpleEvent) ID() string {
+	return e.id
+}
+
 // NewEventSimpleFormat will attempt to construct an event for the
 // simplified crontab format. Effectively, this supports only 3 fields:
 //
@@ -28,6 +55,12 @@ package cron
 //
 // Note the simplified event does not have any notion of days/months nor
 // does it support time ranges.
-func NewEventSimpleFormat(line string) (*Event, error) {
+func NewEventSimpleFormat(line string) (Event, error) {
 	return nil, nil
+}
+
+func NewEventSimpleFormatValues(hour, minute int, command string) Event {
+	return &SimpleEvent{
+		id: fmt.Sprintf("run %v @ M(%v) H(%v)", command, hour, minute),
+	}
 }

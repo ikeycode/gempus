@@ -30,7 +30,7 @@ import (
 // I/O bound. Instead it becomes the responsibility of the calling program
 // to feed parsed events.
 type Tab struct {
-	events []*Event
+	events []Event
 
 	mut *sync.RWMutex
 	tid int64
@@ -47,7 +47,7 @@ func NewTab() *Tab {
 
 // PushEvent will attempt to insert the event into the crontab for
 // future scheduling
-func (t *Tab) PushEvent(e *Event) {
+func (t *Tab) PushEvent(e Event) {
 	e.setTID(t.nextTID())
 	fmt.Println("Not yet implemented")
 
@@ -58,7 +58,7 @@ func (t *Tab) PushEvent(e *Event) {
 }
 
 // expireEvent will remove the event from the list of known events
-func (t *Tab) expireEvent(e *Event) {
+func (t *Tab) expireEvent(e Event) {
 	defer t.mut.Unlock()
 	t.mut.Lock()
 

@@ -16,32 +16,9 @@
 
 package cron
 
-import (
-	"fmt"
-	"time"
-)
-
-// An Event represents a specific job to be executed within the crontab
-// process(es). It provides tracking data to allow repeat events as well
-// as the actual execution data.
-type Event struct {
-	id       string     // String ID for display purposes. Set by a parser.
-	tid      int64      // Internal timing ID
-	runFirst *time.Time // When we should first run.
-}
-
-// NewEvent will construct a new Event type
-func NewEvent() *Event {
-	return &Event{
-		id:       "",
-		tid:      0,
-		runFirst: nil,
-	}
-}
-
-// setTID will be called internally by the managing Tab once it can
-// construct a timing ID
-func (e *Event) setTID(tid int64) {
-	fmt.Printf("TID now: %v\n", tid)
-	e.tid = tid
+// Event provides a simplistic interface to implement events
+type Event interface {
+	ID() string            // ID should return a display ID
+	Execute() (int, error) // Attempt to execute event
+	setTID(int64)          // Internal method to set the TID
 }
