@@ -23,7 +23,7 @@ import (
 
 // pollJobs is a dumb function to pull jobs in order.
 func pollJobs(c *cron.Tab) {
-	c.Run()
+	c.Run(time.Now())
 }
 
 func main() {

@@ -50,6 +50,6 @@ func main() {
 		// Cheekily force the timestamp change now
 		event.Timing().NextTimestamp(tm, false)
 		tab.PushEvent(event)
-		event.Execute()
+		event.Execute(tm)
 	}
 }

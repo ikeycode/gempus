@@ -107,11 +107,10 @@ func (t *Tab) nextTID() int64 {
 }
 
 // Run is a dummy function that pretends to run all the events.
-func (t *Tab) Run() {
+func (t *Tab) Run(tm time.Time) {
 	var queue EventQueue
 
-	now := time.Now()
-	queue = t.buildQueue(&now)
+	queue = t.buildQueue(&tm)
 
 	if len(queue) > 0 {
 		fmt.Printf("Got %v runnables\n", len(queue))
@@ -120,7 +119,7 @@ func (t *Tab) Run() {
 	// Run all runnable events
 	for _, event := range queue {
 		// Execute it
-		event.Execute()
+		event.Execute(time.Now())
 
 		// Expire it if required
 		t.expireEvent(event)

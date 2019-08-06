@@ -48,10 +48,10 @@ func (e *SimpleEvent) Timing() *EventTiming {
 }
 
 // Execute currently does nothing
-func (e *SimpleEvent) Execute() (int, error) {
+func (e *SimpleEvent) Execute(now time.Time) (int, error) {
 	t := e.Timing()
 	day := "today"
-	if t.tm.Day() > time.Now().Day() {
+	if t.tm.Day() > now.Day() {
 		day = "tomorrow"
 	}
 	fmt.Printf("%02d:%02d %s - %s\n", t.tm.Hour(), t.tm.Minute(), day, e.command)
