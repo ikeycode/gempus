@@ -44,6 +44,12 @@ func (e *SimpleEvent) Timing() *EventTiming {
 
 // Execute currently does nothing
 func (e *SimpleEvent) Execute() (int, error) {
+	t := e.Timing()
+	day := "today"
+	if t.tm.Day() > time.Now().Day() {
+		day = "tomorrow"
+	}
+	fmt.Printf("%02d:%02d %s - %s\n", t.tm.Hour(), t.tm.Minute(), day, e.command)
 	return 255, nil
 }
 
@@ -72,7 +78,8 @@ func NewEventSimpleFormat(line string) (Event, error) {
 // values for timing.
 func NewEventSimpleFormatValues(hour, minute int, command string) Event {
 	event := &SimpleEvent{
-		id: fmt.Sprintf("run %v @ M(%v) H(%v)", command, minute, hour),
+		id:      fmt.Sprintf("run %v @ M(%v) H(%v)", command, minute, hour),
+		command: command,
 		timing: &EventTiming{
 			Hour:   hour,
 			Minute: minute,

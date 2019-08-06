@@ -111,5 +111,6 @@ func (t *Tab) Run() {
 		} else {
 			fmt.Printf(": should NOT run\n")
 		}
+		event.Execute()
 	}
 }
