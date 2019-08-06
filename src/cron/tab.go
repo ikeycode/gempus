@@ -47,6 +47,26 @@ func NewTab() *Tab {
 func (t *Tab) PushEvent(e *Event) {
 	e.setTID(t.nextTID())
 	fmt.Println("Not yet implemented")
+
+	t.events = append(t.events, e)
+}
+
+// expireEvent will remove the event from the list of known events
+func (t *Tab) expireEvent(e *Event) {
+	idx := -1
+	for i, ed := range t.events {
+		if ed == e {
+			idx = i
+			break
+		}
+	}
+	// Unknown index
+	if idx < 0 {
+		return
+	}
+	copy(t.events[idx:], t.events[idx+1:])
+	t.events[len(t.events)-1] = nil
+	t.events = t.events[:len(t.events)-1]
 }
 
 func (t *Tab) nextTID() int64 {
