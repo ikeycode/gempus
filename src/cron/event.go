@@ -24,6 +24,7 @@ import (
 // Event provides a simplistic interface to implement events
 type Event interface {
 	ID() string            // ID should return a display ID
+	TID() int64            // Time ID
 	Execute() (int, error) // Attempt to execute event
 	setTID(int64)          // Internal method to set the TID
 

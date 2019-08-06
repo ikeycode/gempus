@@ -37,6 +37,10 @@ func (e *SimpleEvent) setTID(tid int64) {
 	e.tid = tid
 }
 
+func (e *SimpleEvent) TID() int64 {
+	return e.tid
+}
+
 // Timing will return the EventTiming for this SimpleEvent
 func (e *SimpleEvent) Timing() *EventTiming {
 	return e.timing

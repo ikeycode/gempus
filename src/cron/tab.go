@@ -32,7 +32,8 @@ import (
 // I/O bound. Instead it becomes the responsibility of the calling program
 // to feed parsed events.
 type Tab struct {
-	events []Event
+	// Map our entries by their TID to allow expirations.
+	entries map[int64]Event
 
 	mut *sync.RWMutex
 	tid int64
@@ -42,21 +43,40 @@ type Tab struct {
 // use within the calling process.
 func NewTab() *Tab {
 	return &Tab{
-		events: nil,
-		mut:    &sync.RWMutex{},
+
+		entries: make(map[int64]Event),
+		mut:     &sync.RWMutex{},
 	}
 }
 
 // PushEvent will attempt to insert the event into the crontab for
 // future scheduling
 func (t *Tab) PushEvent(e Event) {
-	e.setTID(t.nextTID())
-	fmt.Println("Not yet implemented")
+	tid := t.nextTID()
+	e.setTID(tid)
 
 	defer t.mut.Unlock()
 	t.mut.Lock()
 
-	t.events = append(t.events, e)
+	// Insert the event
+	t.entries[tid] = e
+}
+
+// buildQueue will construct a time-linear queue of events to process
+// This ensures we clear out unnecessary entries
+func (t *Tab) buildQueue(whence *time.Time) EventQueue {
+	defer t.mut.RUnlock()
+	t.mut.RLock()
+
+	var ret EventQueue
+	for _, val := range t.entries {
+		if whence != nil && !val.Timing().ShouldRun(*whence) {
+			continue
+		}
+		ret = append(ret, val)
+	}
+	sort.Sort(ret)
+	return ret
 }
 
 // expireEvent will remove the event from the list of known events
@@ -64,51 +84,29 @@ func (t *Tab) expireEvent(e Event) {
 	defer t.mut.Unlock()
 	t.mut.Lock()
 
-	idx := -1
-	for i, ed := range t.events {
-		if ed == e {
-			idx = i
-			break
-		}
-	}
-	// Unknown index
-	if idx < 0 {
+	if _, ok := t.entries[e.TID()]; !ok {
 		return
 	}
-	copy(t.events[idx:], t.events[idx+1:])
-	t.events[len(t.events)-1] = nil
-	t.events = t.events[:len(t.events)-1]
+
+	delete(t.entries, e.TID())
 }
 
 func (t *Tab) nextTID() int64 {
 	return atomic.AddInt64(&t.tid, 1)
 }
 
-// sortEvents is a bit of a kludge to sort the queue of events.
-// Realistically we could've used a heap-implementation with channels
-// to ensure sorted prioritiy queues.
-func (t *Tab) sortEvents() {
-	defer t.mut.Unlock()
-	t.mut.Lock()
-
-	sort.Sort(EventQueue(t.events))
-}
-
 // Run is a dummy function that pretends to run all the events.
 func (t *Tab) Run() {
+	var queue EventQueue
+
 	now := time.Now()
+	queue = t.buildQueue(&now)
 
-	// Lock and sort events.
-	t.sortEvents()
+	fmt.Printf("Got %v runnables\n", len(queue))
 
-	defer t.mut.RUnlock()
-	t.mut.RLock()
-
-	for _, event := range t.events {
-		if event.Timing().ShouldRun(now) {
-			event.Execute()
-			// t.expireEvent(event)
-			break
-		}
+	// Run all runnable events
+	for _, event := range queue {
+		event.Execute()
+		t.expireEvent(event)
 	}
 }
