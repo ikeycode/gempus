@@ -41,7 +41,8 @@ type EventTiming struct {
 }
 
 // EventQueue wraps the Event type to provide time-based sorting
-// of cron events
+// of cron events. Honestly, a less lame solution is to use the
+// container/heap interface and some channels with a single writer.
 type EventQueue []Event
 
 // ShouldRun will determine if we actually need to be run.
