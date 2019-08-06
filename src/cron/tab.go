@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"sync"
 	"sync/atomic"
+	"time"
 )
 
 // A Tab is used internally to store cron events, which are then
@@ -80,4 +81,17 @@ func (t *Tab) expireEvent(e Event) {
 
 func (t *Tab) nextTID() int64 {
 	return atomic.AddInt64(&t.tid, 1)
+}
+
+// Run is a dummy function that pretends to run all the events.
+func (t *Tab) Run() {
+	now := time.Now()
+	for _, event := range t.events {
+		fmt.Printf("Test event: %v %v", event.ID(), event.Timing().tm)
+		if event.Timing().ShouldRun(now) {
+			fmt.Printf(": should run\n")
+		} else {
+			fmt.Printf(": should NOT run\n")
+		}
+	}
 }

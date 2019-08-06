@@ -21,69 +21,13 @@ import (
 	"time"
 )
 
-// EventTiming allows us to determine if and when an event runs
-type EventTiming struct {
-	Hour   int // -1 Indicates running every hour
-	Minute int // -1 Indicates running every minute
-
-	unix int64
-	// Day uint8
-	// Month uint8
-}
-
-// ShouldRun will determine if we actually need to be run.
-// 'now' should be a UTC current-time value
-func (t EventTiming) ShouldRun(now *time.Time) bool {
-	return t.unix <= now.Unix()
-}
-
-// NextTimestamp sets the UNIX timestamp for the next time the
-// event should run.
-func (t EventTiming) NextTimestamp(now time.Time) {
-	// Run every hour
-	tm := now
-
-	// Run every minute of every hour
-	if t.Hour < 0 && t.Minute < 0 {
-		tm = tm.Add(time.Minute)
-		goto compl
-	}
-
-	if t.Hour < 0 {
-		// Every hour
-		tm = tm.Add(time.Hour)
-	} else {
-		// Specified hour
-		hour := t.Hour - tm.Hour()
-		tm = tm.Add(time.Duration(hour) * time.Hour)
-	}
-
-	if t.Minute < 0 {
-		// Add one minute from now.
-		tm = tm.Add(time.Minute)
-	} else {
-		// Set exact minute
-		minute := t.Minute - tm.Minute()
-		tm = tm.Add(time.Duration(minute) * time.Minute)
-	}
-
-	// Now check if this time is back in time..
-	if tm.Before(now) {
-		tm = tm.Add(time.Hour * time.Duration(24))
-	}
-
-compl:
-	t.unix = tm.Unix()
-	fmt.Println(tm)
-}
-
 // SimpleEvent extends the Event struct to add custom values
 type SimpleEvent struct {
 	tid     int64
 	id      string
 	command string // Really this could become a userdata function.
 
-	timing EventTiming // Maintain timing information
+	timing *EventTiming // Maintain timing information
 }
 
 // setTID will be called internally by the managing Tab once it can
@@ -91,6 +35,11 @@ type SimpleEvent struct {
 func (e *SimpleEvent) setTID(tid int64) {
 	fmt.Printf("TID now: %v\n", tid)
 	e.tid = tid
+}
+
+// Timing will return the EventTiming for this SimpleEvent
+func (e *SimpleEvent) Timing() *EventTiming {
+	return e.timing
 }
 
 // Execute currently does nothing
@@ -123,8 +72,8 @@ func NewEventSimpleFormat(line string) (Event, error) {
 // values for timing.
 func NewEventSimpleFormatValues(hour, minute int, command string) Event {
 	event := &SimpleEvent{
-		id: fmt.Sprintf("run %v @ M(%v) H(%v)", command, hour, minute),
-		timing: EventTiming{
+		id: fmt.Sprintf("run %v @ M(%v) H(%v)", command, minute, hour),
+		timing: &EventTiming{
 			Hour:   hour,
 			Minute: minute,
 		},

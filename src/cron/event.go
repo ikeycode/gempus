@@ -16,9 +16,74 @@
 
 package cron
 
+import (
+	"fmt"
+	"time"
+)
+
 // Event provides a simplistic interface to implement events
 type Event interface {
 	ID() string            // ID should return a display ID
 	Execute() (int, error) // Attempt to execute event
 	setTID(int64)          // Internal method to set the TID
+
+	Timing() *EventTiming // Timing returns the event timing structure
+}
+
+// EventTiming allows us to determine if and when an event runs
+type EventTiming struct {
+	Hour   int // -1 Indicates running every hour
+	Minute int // -1 Indicates running every minute
+
+	tm time.Time
+	// Day uint8
+	// Month uint8
+}
+
+// ShouldRun will determine if we actually need to be run.
+// 'now' should be a UTC current-time value
+func (t *EventTiming) ShouldRun(now time.Time) bool {
+	return t.tm.Before(now)
+}
+
+// NextTimestamp sets the UNIX timestamp for the next time the
+// event should run.
+func (t *EventTiming) NextTimestamp(now time.Time) {
+	// Run every hour
+	tm := now
+
+	// Run every minute of every hour
+	if t.Hour < 0 && t.Minute < 0 {
+		tm = tm.Add(time.Minute)
+		goto compl
+	}
+
+	if t.Hour < 0 {
+		// Every hour
+		tm = tm.Add(time.Hour)
+	} else {
+		// Specified hour
+		hour := t.Hour - tm.Hour()
+		fmt.Println(hour)
+		tm = tm.Add(time.Duration(hour) * time.Hour)
+	}
+
+	if t.Minute < 0 {
+		// Add one minute from now.
+		tm = tm.Add(time.Minute)
+	} else {
+		// Set exact minute
+		minute := t.Minute - tm.Minute()
+		tm = tm.Add(time.Duration(minute) * time.Minute)
+	}
+
+	// Now check if this time is back in time..
+	if tm.Before(now) {
+		fmt.Println("time traveller")
+		tm = tm.Add(time.Hour * time.Duration(24))
+	}
+
+compl:
+	t.tm = tm
+	fmt.Println(t.tm)
 }
