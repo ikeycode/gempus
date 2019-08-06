@@ -18,6 +18,7 @@ package cron
 
 import (
 	"fmt"
+	"sync"
 	"sync/atomic"
 )
 
@@ -31,6 +32,7 @@ import (
 type Tab struct {
 	events []*Event
 
+	mut *sync.RWMutex
 	tid int64
 }
 
@@ -39,6 +41,7 @@ type Tab struct {
 func NewTab() *Tab {
 	return &Tab{
 		events: nil,
+		mut:    &sync.RWMutex{},
 	}
 }
 
@@ -48,11 +51,17 @@ func (t *Tab) PushEvent(e *Event) {
 	e.setTID(t.nextTID())
 	fmt.Println("Not yet implemented")
 
+	defer t.mut.Unlock()
+	t.mut.Lock()
+
 	t.events = append(t.events, e)
 }
 
 // expireEvent will remove the event from the list of known events
 func (t *Tab) expireEvent(e *Event) {
+	defer t.mut.Unlock()
+	t.mut.Lock()
+
 	idx := -1
 	for i, ed := range t.events {
 		if ed == e {
