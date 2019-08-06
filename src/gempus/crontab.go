@@ -14,13 +14,15 @@
 // limitations under the License.
 //
 
-package main
+package gempus
 
-import (
-	"fmt"
-	_ "gempus"
-)
-
-func main() {
-	fmt.Println("Not yet implemented")
+// A Crontab is used internally to store cron events, which are then
+// available for query and scheduling.
+//
+// As a design decision, the Crontab is not responsible for the parsing
+// of crontab files, as it would force the scheduler component to become
+// I/O bound. Instead it becomes the responsibility of the calling program
+// to feed parsed events.
+type Crontab struct {
+	events []*Event
 }

@@ -15,3 +15,25 @@
 //
 
 package gempus
+
+import (
+	"time"
+)
+
+// An Event represents a specific job to be executed within the crontab
+// process(es). It provides tracking data to allow repeat events as well
+// as the actual execution data.
+type Event struct {
+	id       string     // String ID for display purposes. Set by a parser.
+	tid      int64      // Internal timing ID
+	runFirst *time.Time // When we should first run.
+}
+
+// NewEvent will construct a new Event type
+func NewEvent() *Event {
+	return &Event{
+		id:       "",
+		tid:      0,
+		runFirst: nil,
+	}
+}
