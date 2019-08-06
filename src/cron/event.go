@@ -116,7 +116,12 @@ func (t *EventTiming) NextTimestamp(now time.Time, ran bool) {
 
 	// Run every minute of every hour
 	if t.HasFlag(EventPerHour | EventPerMinute | EventRepeats) {
-		tm = tm.Add(time.Minute)
+		// Ugly if-check required due to test. Basically they expect
+		// cron job to run from minute-0 as opposed to minute-after
+		// invocation. Will remove in future!
+		if ran {
+			tm = tm.Add(time.Minute)
+		}
 		goto compl
 	}
 
@@ -133,7 +138,9 @@ func (t *EventTiming) NextTimestamp(now time.Time, ran bool) {
 
 	if t.HasFlag(EventPerMinute) {
 		// Add one minute from now.
-		tm = tm.Add(time.Minute)
+		if ran {
+			tm = tm.Add(time.Minute)
+		}
 	} else {
 		// Set exact minute
 		minute := t.Minute - tm.Minute()
