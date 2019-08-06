@@ -17,7 +17,6 @@
 package cron
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -129,7 +128,6 @@ func (t *EventTiming) NextTimestamp(now time.Time, ran bool) {
 	} else {
 		// Specified hour
 		hour := t.Hour - tm.Hour()
-		fmt.Println(hour)
 		tm = tm.Add(time.Duration(hour) * time.Hour)
 	}
 
@@ -154,7 +152,6 @@ func (t *EventTiming) NextTimestamp(now time.Time, ran bool) {
 
 compl:
 	t.tm = tm
-	fmt.Println(t.tm)
 }
 
 func (eq EventQueue) Less(i, j int) bool {

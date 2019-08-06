@@ -18,6 +18,8 @@ package cron
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -33,7 +35,6 @@ type SimpleEvent struct {
 // setTID will be called internally by the managing Tab once it can
 // construct a timing ID
 func (e *SimpleEvent) setTID(tid int64) {
-	fmt.Printf("TID now: %v\n", tid)
 	e.tid = tid
 }
 
@@ -75,7 +76,39 @@ func (e *SimpleEvent) ID() string {
 // Note the simplified event does not have any notion of days/months nor
 // does it support time ranges.
 func NewEventSimpleFormat(line string) (Event, error) {
-	return nil, nil
+	var err error
+	var min int64
+	var hour int64
+
+	tokens := strings.Fields(line)
+	if len(tokens) < 3 {
+		return nil, fmt.Errorf("invalid number of tokens")
+	}
+
+	// Command to run
+	command := strings.Join(tokens[2:], "")
+
+	// Minutes
+	if tokens[0] == "*" {
+		min = -1
+	} else {
+		min, err = strconv.ParseInt(tokens[0], 10, 64)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// Hours
+	if tokens[1] == "*" {
+		hour = -1
+	} else {
+		hour, err = strconv.ParseInt(tokens[1], 10, 64)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return NewEventSimpleFormatValues(int(hour), int(min), command), nil
 }
 
 // NewEventSimpleFormatValues will return a new event with the given

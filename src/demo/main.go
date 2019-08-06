@@ -17,12 +17,26 @@
 package main
 
 import (
+	"bufio"
 	"cron"
 	"fmt"
+	"os"
 )
 
 func main() {
 	fmt.Println("Not yet implemented")
 	// TODO: Something useful.
-	_ = cron.NewTab()
+	tab := cron.NewTab()
+
+	// Loop stdin
+	sc := bufio.NewScanner(os.Stdin)
+	for sc.Scan() {
+		event, err := cron.NewEventSimpleFormat(sc.Text())
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		tab.PushEvent(event)
+		event.Execute()
+	}
 }
