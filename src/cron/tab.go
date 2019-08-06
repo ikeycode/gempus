@@ -14,10 +14,11 @@
 // limitations under the License.
 //
 
-package gempus
+package cron
 
 import (
 	"fmt"
+	"sync/atomic"
 )
 
 // A Tab is used internally to store cron events, which are then
@@ -29,6 +30,8 @@ import (
 // to feed parsed events.
 type Tab struct {
 	events []*Event
+
+	tid int64
 }
 
 // NewTab will construct a new Tab type and prepare it for
@@ -42,5 +45,10 @@ func NewTab() *Tab {
 // PushEvent will attempt to insert the event into the crontab for
 // future scheduling
 func (t *Tab) PushEvent(e *Event) {
+	e.setTID(t.nextTID())
 	fmt.Println("Not yet implemented")
+}
+
+func (t *Tab) nextTID() int64 {
+	return atomic.AddInt64(&t.tid, 1)
 }

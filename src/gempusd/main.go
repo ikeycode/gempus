@@ -17,10 +17,28 @@
 package main
 
 import (
-	_ "cron"
+	"cron"
 	"fmt"
+	"runtime"
+	"sync"
 )
 
 func main() {
 	fmt.Println("Not yet implemented")
+
+	// Dummy code
+	wg := &sync.WaitGroup{}
+	ncpu := runtime.NumCPU()
+
+	tab := cron.NewTab()
+	wg.Add(ncpu)
+
+	for i := 0; i < ncpu; i++ {
+		go func() {
+			defer wg.Done()
+			tab.PushEvent(cron.NewEvent())
+		}()
+	}
+
+	wg.Wait()
 }

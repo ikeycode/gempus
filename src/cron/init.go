@@ -14,9 +14,10 @@
 // limitations under the License.
 //
 
-package gempus
+package cron
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -36,4 +37,11 @@ func NewEvent() *Event {
 		tid:      0,
 		runFirst: nil,
 	}
+}
+
+// setTID will be called internally by the managing Tab once it can
+// construct a timing ID
+func (e *Event) setTID(tid int64) {
+	fmt.Printf("TID now: %v\n", tid)
+	e.tid = tid
 }
