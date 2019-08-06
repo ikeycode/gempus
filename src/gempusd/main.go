@@ -34,9 +34,10 @@ func main() {
 	wg.Add(ncpu)
 
 	for i := 0; i < ncpu; i++ {
+		idx := 30 + i
 		go func() {
 			defer wg.Done()
-			tab.PushEvent(cron.NewEventSimpleFormatValues(12, 30+i, "/bin/script"))
+			tab.PushEvent(cron.NewEventSimpleFormatValues(12, idx, "/bin/script"))
 		}()
 	}
 

@@ -39,6 +39,7 @@ func (e *SimpleEvent) Execute() (int, error) {
 	return 255, nil
 }
 
+// ID will return the ID for the event
 func (e *SimpleEvent) ID() string {
 	return e.id
 }
@@ -59,6 +60,8 @@ func NewEventSimpleFormat(line string) (Event, error) {
 	return nil, nil
 }
 
+// NewEventSimpleFormatValues will return a new event with the given
+// values for timing.
 func NewEventSimpleFormatValues(hour, minute int, command string) Event {
 	return &SimpleEvent{
 		id: fmt.Sprintf("run %v @ M(%v) H(%v)", command, hour, minute),
