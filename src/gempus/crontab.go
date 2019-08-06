@@ -16,6 +16,10 @@
 
 package gempus
 
+import (
+	"fmt"
+)
+
 // A Crontab is used internally to store cron events, which are then
 // available for query and scheduling.
 //
@@ -25,4 +29,18 @@ package gempus
 // to feed parsed events.
 type Crontab struct {
 	events []*Event
+}
+
+// NewCrontab will construct a new Crontab type and prepare it for
+// use within the calling process.
+func NewCrontab() *Crontab {
+	return &Crontab{
+		events: nil,
+	}
+}
+
+// PushEvent will attempt to insert the event into the crontab for
+// future scheduling
+func (c *Crontab) PushEvent(e *Event) {
+	fmt.Println("Not yet implemented")
 }
