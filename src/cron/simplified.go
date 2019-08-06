@@ -25,6 +25,8 @@ import (
 type EventTiming struct {
 	Hour   int // -1 Indicates running every hour
 	Minute int // -1 Indicates running every minute
+
+	unix int64
 	// Day uint8
 	// Month uint8
 }
@@ -32,7 +34,47 @@ type EventTiming struct {
 // ShouldRun will determine if we actually need to be run.
 // 'now' should be a UTC current-time value
 func (t EventTiming) ShouldRun(now *time.Time) bool {
-	return false
+	return t.unix <= now.Unix()
+}
+
+// NextTimestamp sets the UNIX timestamp for the next time the
+// event should run.
+func (t EventTiming) NextTimestamp(now time.Time) {
+	// Run every hour
+	tm := now
+
+	// Run every minute of every hour
+	if t.Hour < 0 && t.Minute < 0 {
+		tm = tm.Add(time.Minute)
+		goto compl
+	}
+
+	if t.Hour < 0 {
+		// Every hour
+		tm = tm.Add(time.Hour)
+	} else {
+		// Specified hour
+		hour := t.Hour - tm.Hour()
+		tm = tm.Add(time.Duration(hour) * time.Hour)
+	}
+
+	if t.Minute < 0 {
+		// Add one minute from now.
+		tm = tm.Add(time.Minute)
+	} else {
+		// Set exact minute
+		minute := t.Minute - tm.Minute()
+		tm = tm.Add(time.Duration(minute) * time.Minute)
+	}
+
+	// Now check if this time is back in time..
+	if tm.Before(now) {
+		tm = tm.Add(time.Hour * time.Duration(24))
+	}
+
+compl:
+	t.unix = tm.Unix()
+	fmt.Println(tm)
 }
 
 // SimpleEvent extends the Event struct to add custom values
@@ -80,11 +122,13 @@ func NewEventSimpleFormat(line string) (Event, error) {
 // NewEventSimpleFormatValues will return a new event with the given
 // values for timing.
 func NewEventSimpleFormatValues(hour, minute int, command string) Event {
-	return &SimpleEvent{
+	event := &SimpleEvent{
 		id: fmt.Sprintf("run %v @ M(%v) H(%v)", command, hour, minute),
 		timing: EventTiming{
 			Hour:   hour,
 			Minute: minute,
 		},
 	}
+	event.timing.NextTimestamp(time.Now())
+	return event
 }
