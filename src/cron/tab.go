@@ -86,6 +86,10 @@ func (t *Tab) nextTID() int64 {
 // Run is a dummy function that pretends to run all the events.
 func (t *Tab) Run() {
 	now := time.Now()
+
+	defer t.mut.RUnlock()
+	t.mut.RLock()
+
 	for _, event := range t.events {
 		fmt.Printf("Test event: %v %v", event.ID(), event.Timing().tm)
 		if event.Timing().ShouldRun(now) {
