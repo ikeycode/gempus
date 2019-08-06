@@ -81,8 +81,11 @@ func (t *EventTiming) NextTimestamp(now time.Time) {
 
 	// Now check if this time is back in time..
 	if tm.Before(now) {
-		fmt.Println("time traveller")
 		tm = tm.Add(time.Hour * time.Duration(24))
+		if t.Minute < 0 {
+			// Reset the minutes for time travelling
+			tm = tm.Add(time.Duration(60-tm.Minute()) * time.Minute)
+		}
 	}
 
 compl:
