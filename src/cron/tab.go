@@ -119,7 +119,7 @@ func (t *Tab) Run(tm time.Time) {
 	// Run all runnable events
 	for _, event := range queue {
 		// Execute it
-		event.Execute(time.Now())
+		_, _ = event.Execute(time.Now())
 
 		// Expire it if required
 		t.expireEvent(event)
