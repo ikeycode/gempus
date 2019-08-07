@@ -38,6 +38,7 @@ func (e *SimpleEvent) setTID(tid int64) {
 	e.tid = tid
 }
 
+// TID will return the timing-ID for this event
 func (e *SimpleEvent) TID() int64 {
 	return e.tid
 }
