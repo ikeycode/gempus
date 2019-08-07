@@ -18,6 +18,7 @@ package cron
 
 import (
 	"testing"
+	"time"
 )
 
 // Add basic test for simple format
@@ -42,6 +43,7 @@ func TestBasicEvent(t *testing.T) {
 	}
 }
 
+// TestTextEvent will attempt parsing of events from text input
 func TestTextEvent(t *testing.T) {
 	// Good event
 	event, err := NewEventSimpleFormat("* * /bin/bash")
@@ -69,5 +71,35 @@ func TestTextEvent(t *testing.T) {
 	event, err = NewEventSimpleFormat("s* * /bin/fail")
 	if err == nil {
 		t.Fatal("Shouldn't parse event")
+	}
+}
+
+// TestTimings will ensure timings are correct.
+func TestTimings(t *testing.T) {
+	// Set the current time to 16:10
+	now, _ := time.Parse("15:04", "16:10")
+
+	// Run command at 13:10, which must be YESTERDAY
+	event := NewEventSimpleFormatValues(13, 10, "/bin/bash")
+	event.Timing().NextTimestamp(now, false)
+
+	if event.Timing().tm.Day() != now.Day()+1 {
+		t.Fatal("incorrect day for event")
+	}
+
+	// Runs at 11 minutes every hour. Must run THIS hour too
+	event = NewEventSimpleFormatValues(-1, 11, "/bin/bash")
+	event.Timing().NextTimestamp(now, false)
+
+	if event.Timing().tm.Hour() != now.Hour() {
+		t.Fatal("incorrect hour for event")
+	}
+
+	// Runs at 9 minutes past the hour. Must be NEXT hour
+	event = NewEventSimpleFormatValues(-1, 9, "/bin/bash")
+	event.Timing().NextTimestamp(now, false)
+
+	if event.Timing().tm.Hour() != now.Hour()+1 {
+		t.Fatal("incorrect hour for event")
 	}
 }
