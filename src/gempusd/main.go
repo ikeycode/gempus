@@ -21,11 +21,6 @@ import (
 	"time"
 )
 
-// pollJobs is a dumb function to pull jobs in order.
-func pollJobs(c *cron.Tab) {
-	c.Run(time.Now())
-}
-
 func main() {
 	tab := cron.NewTab()
 
@@ -40,7 +35,7 @@ func main() {
 	for {
 		select {
 		case <-time.After(5 * time.Second):
-			pollJobs(tab)
+			tab.Run(time.Now())
 		case <-q:
 			break
 		}
