@@ -25,7 +25,6 @@ import (
 )
 
 func main() {
-	fmt.Println("Not yet implemented")
 	tab := cron.NewTab()
 
 	tm := time.Now()
