@@ -1,5 +1,9 @@
 # gempus
 
+> golang implementation of crontab parser for a recruitment question
+
+[![Report](https://goreportcard.com/badge/github.com/ikeycode/gempus)](https://goreportcard.com/report/github.com/ikeycode/gempus) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 This 'project' is initially an implementation of a programming question set
 by a recruiter. Given an input file in a simplified crontab format, output
 the time-ascending order of events (i.e. execution paths)
