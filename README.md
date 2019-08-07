@@ -19,6 +19,20 @@ cronds the world unite, systemd ate the crond, etc, etc.
 
 Perverse merging of `tempus` (Latin: time) with `golang`.
 
+## Running it, requirements
+
+OS capable of running `make`, and a recent version of `golang` (1.12 perhaps..)
+
+### Building it
+
+    make
+
+### Running it
+
+    make check
+    ./bin/demo
+    ./bin/gempusd
+
 ## Authors
 
 What, too cool for `git blame`? OK, Ikey Doherty is to blame for the code.
